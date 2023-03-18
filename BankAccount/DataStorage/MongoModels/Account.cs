@@ -27,5 +27,8 @@ public class Account
     
     [BsonElement("owner")]
     [BsonRepresentation(BsonType.Array)]
-    public Array Owner { get; set; }
+    public Client Owner { get; set; }
+    
+    [BsonElement("transactions")]
+    public List<Transaction> Transactions { get; set; }
 }

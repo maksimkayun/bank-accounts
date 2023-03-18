@@ -23,9 +23,9 @@ public class Transaction
     
     [BsonElement("sender")]
     [BsonRepresentation(BsonType.Array)]
-    public Array Sender { get; set; }
+    public Account Sender { get; set; }
     
     [BsonElement("recipient")]
     [BsonRepresentation(BsonType.Array)]
-    public Array Recipient { get; set; }
+    public Account Recipient { get; set; }
 }

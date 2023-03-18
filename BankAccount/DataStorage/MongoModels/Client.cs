@@ -28,4 +28,7 @@ public class Client
     [BsonElement("phone_number")]
     [BsonRepresentation(BsonType.String)]
     public string PhoneNumber { get; set; }
+    
+    [BsonElement("accounts")]
+    public List<Account> Accounts { get; set; }
 }
