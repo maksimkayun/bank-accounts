@@ -1,3 +1,4 @@
+using AutoMapper;
 using BankAccount;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddRouting(opt => opt.LowercaseUrls = true);
 builder.Services.ConfigureDatabaseConnection(builder.Configuration);
 builder.Services.AddLogging(opt => opt.AddConsole());

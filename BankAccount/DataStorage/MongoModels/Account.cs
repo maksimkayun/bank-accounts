@@ -10,8 +10,8 @@ public class Account
     public string Id { get; set; }
     
     [BsonElement("account_number")]
-    [BsonRepresentation(BsonType.String)]
-    public string AccountNumber { get; set; }
+    [BsonRepresentation(BsonType.Int32)]
+    public int AccountNumber { get; set; }
     
     [BsonElement("balance")]
     [BsonRepresentation(BsonType.Int32)]
@@ -26,8 +26,8 @@ public class Account
     public DateTime ClosingDate { get; set; }
     
     [BsonElement("owner")]
-    public Client Owner { get; set; }
+    public string Owner { get; set; }
     
     [BsonElement("transactions")]
-    public List<Transaction> Transactions { get; set; }
+    public List<string> Transactions { get; set; }
 }

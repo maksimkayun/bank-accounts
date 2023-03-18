@@ -1,8 +1,6 @@
-﻿using BankAccount.DataStorage.MongoModels;
-using BankAccount.DTO;
+﻿using BankAccount.DTO;
 using BankAccount.Interfaces;
 using BankAccount.Requests;
-using Mapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccount.Controllers;
@@ -49,7 +47,6 @@ public class BankAccountController : Controller
     [HttpPost("{id}")]
     public async Task<ActionResult> UpdateAccount(string id, [FromBody] AccountDto accountDto)
     {
-        accountDto.Id = int.Parse(id);
         var accountUpd = _service.UpdateAccount(id, accountDto);
         return Ok(accountUpd);
     }

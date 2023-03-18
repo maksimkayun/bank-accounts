@@ -14,10 +14,10 @@ public static class StartupExtentions
         if (config.GetValue<string>("DBType") == "MongoDB")
         {
             services.Configure<MongoDbSettings>(config.GetSection("MongoDatabase"));
-            services.AddSingleton<BankAccountMongoContext>();
-            services.AddSingleton<IClientService, BankAccountMongoService>();
-            services.AddSingleton<ITransactionsService, BankAccountMongoService>();
-            services.AddSingleton<IAccountService, BankAccountMongoService>();
+            services.AddScoped<BankAccountMongoContext>();
+            services.AddScoped<IClientService, BankAccountMongoService>();
+            services.AddScoped<ITransactionsService, BankAccountMongoService>();
+            services.AddScoped<IAccountService, BankAccountMongoService>();
         } 
         else if (config.GetValue<string>("DBType") == "Postgres")
         {
@@ -27,9 +27,9 @@ public static class StartupExtentions
                 options.UseNpgsql(connectionString);
             });
             services.AddScoped<BankAccountPgContext>();
-            services.AddSingleton<IClientService, BankAccountPostgresService>();
-            services.AddSingleton<ITransactionsService, BankAccountPostgresService>();
-            services.AddSingleton<IAccountService, BankAccountPostgresService>();
+            services.AddScoped<IClientService, BankAccountPostgresService>();
+            services.AddScoped<ITransactionsService, BankAccountPostgresService>();
+            services.AddScoped<IAccountService, BankAccountPostgresService>();
         }
         else
         {

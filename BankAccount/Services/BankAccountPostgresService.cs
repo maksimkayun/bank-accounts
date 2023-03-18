@@ -1,43 +1,58 @@
-﻿using BankAccount.DataStorage;
+﻿using AutoMapper;
+using BankAccount.DataStorage;
 using BankAccount.DataStorage.PostgresModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
-using Mapper;
 
 namespace BankAccount.Services;
 
 public class BankAccountPostgresService : IAccountService, IClientService, ITransactionsService
 {
     private readonly BankAccountPgContext _context;
+    private readonly IMapper _mapper;
 
-    public BankAccountPostgresService(BankAccountPgContext context)
+    public BankAccountPostgresService(BankAccountPgContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public List<AccountDto> GetAccounts(int skip = 0, int take = 10)
-    {
-        throw new NotImplementedException();
-    }
+    public List<AccountDto> GetAccounts(int skip = 0, int take = 10) =>
+        _context.Accounts.Skip(skip).Take(take)
+            .AsEnumerable()
+            .Select(e => _mapper.Map<AccountDto>(e))
+            .ToList();
 
     public AccountDto GetAccountById(string id)
     {
-        throw new NotImplementedException();
+        var account = _context.Accounts.SingleOrDefault(e => e.Id.ToString() == id);
+        var accountDto = _mapper.Map<AccountDto>(account);
+        return accountDto;
     }
+
 
     public AccountDto CreateAccount(AccountDto accountDto)
     {
-        throw new NotImplementedException();
+        var account = _mapper.Map<Account>(accountDto);
+        accountDto.Id = _context.Accounts.Add(account).Entity.Id.ToString();
+        _context.SaveChanges();
+        return accountDto;
     }
 
     public AccountDto UpdateAccount(string id, AccountDto accountDto)
     {
-        throw new NotImplementedException();
+        accountDto.Id = id;
+        var account = _mapper.Map<Account>(accountDto);
+        _context.Accounts.Update(account);
+        _context.SaveChanges();
+        return accountDto;
     }
 
     public AccountDto DeleteAccount(string id)
     {
-        throw new NotImplementedException();
+        var account = _context.Accounts.FirstOrDefault(e => e.Id.ToString() == id);
+        _context.Accounts.Remove(account);
+        return _mapper.Map<AccountDto>(account);
     }
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10)
