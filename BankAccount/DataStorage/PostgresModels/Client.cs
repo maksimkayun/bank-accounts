@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using NpgsqlTypes;
 
 namespace BankAccount.DataStorage.PostgresModels;
 
@@ -27,4 +25,7 @@ public class Client
 
     [Column("phone_number")]
     public string PhoneNumber { get; set; }
+    
+    [Column("accounts")]
+    public List<Account> Accounts { get; set; }
 }

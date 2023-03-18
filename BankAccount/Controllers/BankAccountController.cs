@@ -1,6 +1,8 @@
 ﻿using BankAccount.DataStorage.MongoModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
+using BankAccount.Requests;
+using Mapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankAccount.Controllers;
@@ -10,59 +12,52 @@ namespace BankAccount.Controllers;
 public class BankAccountController : Controller
 {
     private readonly ILogger<BankAccountController> _logger;
-    private readonly ICRUDService _service;
+    private readonly IAccountService _service;
 
-    public BankAccountController(ILogger<BankAccountController> logger, ICRUDService service)
+    public BankAccountController(ILogger<BankAccountController> logger, IAccountService service)
     {
         _logger = logger;
         _service = service;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get([FromBody] GetAccountsRequest request)
     {
-        return Ok(_service.GetClients());
+        return Ok(_service.GetAccounts(take: request.Take, skip: request.Skip));
     }
-    
-    [HttpGet("getClientById/{id:length(24)}")]
-    public async Task<ActionResult> GetClientById(string id)
-    {
-        var result = await _service.GetClientById(id);
 
-        if (result!=null)
+    [HttpPost("{id}")]
+    public async Task<ActionResult> GetById(string id)
+    {
+        var result = _service.GetAccountById(id);
+
+        if (result != null)
         {
             return Ok(result);
         }
+
         return BadRequest("not found");
     }
+
     [HttpPost]
-    public async Task<ActionResult> CreateClient(ClientDto clientDto)
+    public async Task<ActionResult> CreateAccount([FromBody] AccountDto accountDto)
     {
-        var client = new Client()
-        {
-            Name = clientDto.Name,
-            SurName = clientDto.SurName,
-            Birthday = clientDto.Birthday,
-            Email = clientDto.Email,
-            PhoneNumber = clientDto.PhoneNumber
-        };
-        await _service.CreateClient(client);
-        return Ok(client);
+        _service.CreateAccount(accountDto);
+        return Ok(accountDto.Id);
     }
 
-    [HttpPut]
-    public async Task<ActionResult> UpdateClient(string id,ClientDto client)
+    [HttpPost("{id}")]
+    public async Task<ActionResult> UpdateAccount(string id, [FromBody] AccountDto accountDto)
     {
-        client.Id = id;
-        await _service.UpdateClient(id,client);
-        return Ok(client);
+        accountDto.Id = int.Parse(id);
+        var accountUpd = _service.UpdateAccount(id, accountDto);
+        return Ok(accountUpd);
     }
 
-    [HttpDelete]
-    public async Task<ActionResult> DeleteClient(string id)
+    [HttpPost("{id}")]
+    public async Task<ActionResult> DeleteAccount(string id)
     {
-        var result = await _service.GetClientById(id);
-        await _service.DeleteClient(id);
-        return Ok(result);
+        var account = _service.DeleteAccount(id);
+        return Ok(account);
     }
 }

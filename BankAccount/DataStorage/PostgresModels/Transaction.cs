@@ -2,8 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankAccount.DataStorage.PostgresModels;
+
 [Table("transactions")]
-public class Transactions
+public class Transaction
 {
     [Key]
     [Column("id")]
@@ -20,8 +21,8 @@ public class Transactions
     public int Amount { get; set; }
 
     [Column("sender")]
-    public Array Sender { get; set; }
+    public Account Sender { get; set; }
 
     [Column("recipient")]
-    public Array Recipient { get; set; }
+    public Account Recipient { get; set; }
 }

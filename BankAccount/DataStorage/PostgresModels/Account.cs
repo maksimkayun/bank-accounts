@@ -24,5 +24,8 @@ public class Account
     public DateTime ClosingDate { get; set; }
 
     [Column("owner")]
-    public Array Owner { get; set; }
+    public Client Owner { get; set; }
+    
+    [Column("transactions")]
+    public List<Transaction> Transactions { get; set; }
 }

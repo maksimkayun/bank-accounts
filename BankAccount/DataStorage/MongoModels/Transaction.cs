@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BankAccount.DataStorage.MongoModels;
 
-public class Transactions
+public class Transaction
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

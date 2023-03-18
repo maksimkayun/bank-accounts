@@ -7,7 +7,7 @@ using MongoDB.Driver;
 
 namespace BankAccount.Services;
 
-public class BankAccountMongoService : ICRUDService
+public class BankAccountMongoService : IAccountService, IClientService, ITransactionsService
 {
     private readonly BankAccountMongoContext _context;
 
@@ -16,21 +16,78 @@ public class BankAccountMongoService : ICRUDService
         _context = context;
     }
 
-    public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
-        _context.Clients.FindAsync(_ => true, new FindOptions<Client>
-        {
-            Limit = take,
-            Skip = skip
-        }).Result.ToListAsync().Result
-            .Select(client => MapUtil<Client, ClientDto>.Map(client)).ToList();
-    public async Task<Client?> GetClientById(string id) =>
-        await _context.Clients.Find(x => x.Id == id).FirstOrDefaultAsync();
-  /*  public async Task CreateClient(ClientDto newClient) =>
-        await _context.Clients.InsertOneAsync(newClient);
+    public List<AccountDto> GetAccounts(int skip = 0, int take = 10)
+    {
+        throw new NotImplementedException();
+    }
 
-    public async Task UpdateClient(string id,ClientDto client) =>
-        await _context.Clients.ReplaceOneAsync(x => x.Id == id, client);
-    
-    public async Task DeleteClient(string id) =>
-        await _context.Clients.DeleteOneAsync(x => x.Id == id);*/
+    public AccountDto GetAccountById(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public AccountDto CreateAccount(AccountDto accountDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public AccountDto UpdateAccount(string id, AccountDto accountDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public AccountDto DeleteAccount(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<ClientDto> GetClients(int skip = 0, int take = 10)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ClientDto GetClientById(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ClientDto CreateClient(ClientDto clientDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ClientDto UpdateClient(string id, ClientDto client)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ClientDto DeleteClient(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<TransactionDto> GetTransactions(int skip = 0, int take = 10)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TransactionDto GetTransactionById(string id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TransactionDto CreateTransaction(TransactionDto transactionsDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TransactionDto UpdateTransaction(string id, TransactionDto transactionsDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TransactionDto DeleteTransaction(string id)
+    {
+        throw new NotImplementedException();
+    }
 }
