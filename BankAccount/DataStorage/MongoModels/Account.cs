@@ -26,7 +26,6 @@ public class Account
     public DateTime ClosingDate { get; set; }
     
     [BsonElement("owner")]
-    [BsonRepresentation(BsonType.Array)]
     public Client Owner { get; set; }
     
     [BsonElement("transactions")]

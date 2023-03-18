@@ -22,10 +22,8 @@ public class Transaction
     public int Amount { get; set; }
     
     [BsonElement("sender")]
-    [BsonRepresentation(BsonType.Array)]
     public Account Sender { get; set; }
     
     [BsonElement("recipient")]
-    [BsonRepresentation(BsonType.Array)]
     public Account Recipient { get; set; }
 }
