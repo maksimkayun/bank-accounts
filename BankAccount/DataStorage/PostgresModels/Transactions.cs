@@ -1,6 +1,27 @@
-﻿namespace BankAccount.DataStorage.PostgresModels;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace BankAccount.DataStorage.PostgresModels;
+[Table("transactions")]
 public class Transactions
 {
-    
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("date")]
+    [DataType(DataType.Date)]
+    public DateTime Date { get; set; }
+
+    [Column("type")]
+    public string Type { get; set; }
+
+    [Column("amount")]
+    public int Amount { get; set; }
+
+    [Column("sender")]
+    public Array Sender { get; set; }
+
+    [Column("recipient")]
+    public Array Recipient { get; set; }
 }
