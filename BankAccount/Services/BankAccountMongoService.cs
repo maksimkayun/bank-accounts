@@ -52,53 +52,71 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         return _mapper.Map<AccountDto>(account);
     }
 
-    public List<ClientDto> GetClients(int skip = 0, int take = 10)
-    {
-        throw new NotImplementedException();
-    }
+    public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
+        _context.Clients.FindSync(_ => true, new FindOptions<Client>
+            {
+                Limit = take,
+                Skip = skip
+            }).ToEnumerable()
+            .Select(e => _mapper.Map<ClientDto>(e))
+            .ToList();
 
-    public ClientDto GetClientById(string id)
-    {
-        throw new NotImplementedException();
-    }
+    public ClientDto GetClientById(string id) =>
+        _mapper.Map<ClientDto>(_context.Clients.FindSync(e => e.Id == id).FirstOrDefault());
 
     public ClientDto CreateClient(ClientDto clientDto)
     {
-        throw new NotImplementedException();
+        var client = _mapper.Map<Client>(clientDto);
+        _context.Clients.InsertOne(client);
+        clientDto.Id = client.Id;
+        return clientDto;
     }
 
-    public ClientDto UpdateClient(string id, ClientDto client)
+    public ClientDto UpdateClient(string id, ClientDto clientDto)
     {
-        throw new NotImplementedException();
+        clientDto.Id = id;
+        var client = _mapper.Map<Client>(clientDto);
+        _context.Clients.FindOneAndReplace(e => e.Id == id, client);
+        return clientDto;
     }
 
     public ClientDto DeleteClient(string id)
     {
-        throw new NotImplementedException();
+        var client = _context.Clients.FindOneAndDelete(e => e.Id == id);
+        return _mapper.Map<ClientDto>(client);
     }
 
-    public List<TransactionDto> GetTransactions(int skip = 0, int take = 10)
-    {
-        throw new NotImplementedException();
-    }
+    public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>
+        _context.Transactions.FindSync(_ => true, new FindOptions<Transaction>
+            {
+                Limit = take,
+                Skip = skip
+            }).ToEnumerable()
+            .Select(e => _mapper.Map<TransactionDto>(e))
+            .ToList();
 
-    public TransactionDto GetTransactionById(string id)
-    {
-        throw new NotImplementedException();
-    }
+    public TransactionDto GetTransactionById(string id) =>
+        _mapper.Map<TransactionDto>(_context.Transactions.FindSync(e => e.Id == id).FirstOrDefault());
 
     public TransactionDto CreateTransaction(TransactionDto transactionsDto)
     {
-        throw new NotImplementedException();
+        var transaction = _mapper.Map<Transaction>(transactionsDto);
+        _context.Transactions.InsertOne(transaction);
+        transactionsDto.Id = transaction.Id;
+        return transactionsDto;
     }
 
     public TransactionDto UpdateTransaction(string id, TransactionDto transactionsDto)
     {
-        throw new NotImplementedException();
+        transactionsDto.Id = id;
+        var transaction = _mapper.Map<Transaction>(transactionsDto);
+        _context.Transactions.ReplaceOne(e => e.Id == id, transaction);
+        return transactionsDto;
     }
 
     public TransactionDto DeleteTransaction(string id)
     {
-        throw new NotImplementedException();
+        var transaction = _context.Transactions.FindOneAndDelete(e => e.Id == id);
+        return _mapper.Map<TransactionDto>(transaction);
     }
 }

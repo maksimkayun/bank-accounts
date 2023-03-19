@@ -70,7 +70,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         throw new NotImplementedException();
     }
 
-    public ClientDto UpdateClient(string id, ClientDto client)
+    public ClientDto UpdateClient(string id, ClientDto clientDto)
     {
         throw new NotImplementedException();
     }
