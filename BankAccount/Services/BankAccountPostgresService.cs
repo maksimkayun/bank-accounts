@@ -50,58 +50,74 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
 
     public AccountDto DeleteAccount(string id)
     {
-        var account = _context.Accounts.FirstOrDefault(e => e.Id.ToString() == id);
+        var account = _context.Accounts.First(e => e.Id.ToString() == id);
         _context.Accounts.Remove(account);
         return _mapper.Map<AccountDto>(account);
     }
 
-    public List<ClientDto> GetClients(int skip = 0, int take = 10)
-    {
-        throw new NotImplementedException();
-    }
+    public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
+        _context.Clients.Skip(skip).Take(take)
+            .AsEnumerable()
+            .Select(e => _mapper.Map<ClientDto>(e))
+            .ToList();
 
-    public ClientDto GetClientById(string id)
-    {
-        throw new NotImplementedException();
-    }
+    public ClientDto GetClientById(string id) =>
+        _mapper.Map<ClientDto>(_context.Clients.First(e => e.Id == int.Parse(id)));
 
     public ClientDto CreateClient(ClientDto clientDto)
     {
-        throw new NotImplementedException();
+        var client = _mapper.Map<Client>(clientDto);
+        clientDto.Id = _context.Clients.Add(client).Entity.Id.ToString();
+        _context.SaveChanges();
+        return clientDto;
     }
 
     public ClientDto UpdateClient(string id, ClientDto clientDto)
     {
-        throw new NotImplementedException();
+        clientDto.Id = id;
+        var client = _mapper.Map<Client>(clientDto);
+        _context.Clients.Update(client);
+        return clientDto;
     }
 
     public ClientDto DeleteClient(string id)
     {
-        throw new NotImplementedException();
+        var client = _context.Clients.First(e => e.Id == int.Parse(id));
+        var clientDto = _mapper.Map<ClientDto>(_context.Clients.Remove(client).Entity);
+        _context.SaveChanges();
+        return clientDto;
     }
 
-    public List<TransactionDto> GetTransactions(int skip = 0, int take = 10)
+    public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>
+        _context.Transactions.Skip(skip).Take(take)
+            .AsEnumerable()
+            .Select(e => _mapper.Map<TransactionDto>(e))
+            .ToList();
+
+    public TransactionDto GetTransactionById(string id) =>
+        _mapper.Map<TransactionDto>(_context.Transactions.First(e => e.Id == int.Parse(id)));
+
+    public TransactionDto CreateTransaction(TransactionDto transactionDto)
     {
-        throw new NotImplementedException();
+        var transaction = _mapper.Map<Transaction>(transactionDto);
+        transactionDto.Id = _context.Transactions.Add(transaction).Entity.Id.ToString();
+        _context.SaveChanges();
+        return transactionDto;
     }
 
-    public TransactionDto GetTransactionById(string id)
+    public TransactionDto UpdateTransaction(string id, TransactionDto transactionDto)
     {
-        throw new NotImplementedException();
-    }
-
-    public TransactionDto CreateTransaction(TransactionDto transactionsDto)
-    {
-        throw new NotImplementedException();
-    }
-
-    public TransactionDto UpdateTransaction(string id, TransactionDto transactionsDto)
-    {
-        throw new NotImplementedException();
+        transactionDto.Id = id;
+        var transaction = _mapper.Map<Transaction>(transactionDto);
+        _context.Transactions.Update(transaction);
+        return transactionDto;
     }
 
     public TransactionDto DeleteTransaction(string id)
     {
-        throw new NotImplementedException();
+        var transaction = _context.Transactions.First(e => e.Id == int.Parse(id));
+        var transactionDto = _mapper.Map<TransactionDto>(_context.Transactions.Remove(transaction).Entity);
+        _context.SaveChanges();
+        return transactionDto;
     }
 }
