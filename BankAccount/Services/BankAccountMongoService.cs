@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using BankAccount.DataStorage;
-using BankAccount.DataStorage.MongoModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
+using DbContext.DataStorage;
+using DbContext.DataStorage.MongoModels;
 using MongoDB.Driver;
 
 namespace BankAccount.Services;
@@ -53,6 +53,11 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
     }
 
     public bool CreateCompositeIndex(string dbName, string schemaName, List<string> properties)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SeedCollectionAccounts()
     {
         throw new NotImplementedException();
     }

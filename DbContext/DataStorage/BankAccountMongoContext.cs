@@ -1,9 +1,9 @@
-﻿using BankAccount.DataStorage.MongoModels;
-using BankAccount.Settings;
+﻿using DbContext.DataStorage.MongoModels;
+using DbContext.Settings;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace BankAccount.DataStorage;
+namespace DbContext.DataStorage;
 
 public class BankAccountMongoContext
 {

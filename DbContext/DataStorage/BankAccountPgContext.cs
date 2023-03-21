@@ -1,9 +1,9 @@
-﻿using BankAccount.DataStorage.PostgresModels;
+﻿using DbContext.DataStorage.PostgresModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankAccount.DataStorage;
+namespace DbContext.DataStorage;
 
-public sealed class BankAccountPgContext : DbContext
+public sealed class BankAccountPgContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public DbSet<Client> Clients { get; set; }
     public DbSet<Account> Accounts { get; set; }
@@ -11,7 +11,8 @@ public sealed class BankAccountPgContext : DbContext
 
     private BankAccountPgContext()
     {
-        Database.EnsureCreated();
+       
+       
     }
 
     public BankAccountPgContext(DbContextOptions options) : base(options)

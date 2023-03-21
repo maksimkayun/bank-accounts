@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankAccount.DataStorage.PostgresModels;
+namespace DbContext.DataStorage.PostgresModels;
 
 [Table("clients")]
 public class Client

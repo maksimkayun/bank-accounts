@@ -1,4 +1,4 @@
-﻿namespace BankAccount.Settings;
+﻿namespace DbContext.Settings;
 
 public class MongoDbSettings
 {

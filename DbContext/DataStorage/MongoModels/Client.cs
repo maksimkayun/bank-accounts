@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BankAccount.DataStorage.MongoModels;
+namespace DbContext.DataStorage.MongoModels;
 
 public class Client
 {

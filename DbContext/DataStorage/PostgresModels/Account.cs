@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankAccount.DataStorage.PostgresModels;
+namespace DbContext.DataStorage.PostgresModels;
 [Table("accounts")]
 public class Account
 {
@@ -10,7 +10,7 @@ public class Account
     public int Id { get; set; }
 
     [Column("account_number")]
-    public string AccountNumber { get; set; }
+    public int AccountNumber { get; set; }
 
     [Column("balance")]
     public int Balance { get; set; }
@@ -21,10 +21,10 @@ public class Account
 
     [Column("closing_date")]
     [DataType(DataType.Date)]
-    public DateTime ClosingDate { get; set; }
+    public DateTime? ClosingDate { get; set; }
 
     [Column("owner")]
-    public Client Owner { get; set; }
+    public Client? Owner { get; set; }
     
     [Column("transactions")]
     public List<Transaction> Transactions { get; set; }

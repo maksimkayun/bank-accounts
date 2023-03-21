@@ -103,7 +103,7 @@ CREATE TABLE accounts (
 INSERT INTO accounts (account_number, balance, opening_date, closing_date, owner)
 SELECT
     CASE mod(generate_series, 10)
-
+        (100000 + generate_series(1, 100000))
         END,
     CASE mod(generate_series, 10)
         WHEN 0 THEN 253

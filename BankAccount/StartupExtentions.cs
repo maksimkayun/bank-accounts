@@ -1,7 +1,7 @@
-﻿using BankAccount.DataStorage;
-using BankAccount.Interfaces;
+﻿using BankAccount.Interfaces;
 using BankAccount.Services;
-using BankAccount.Settings;
+using DbContext.DataStorage;
+using DbContext.Settings;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankAccount;
