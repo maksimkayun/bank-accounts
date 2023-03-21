@@ -38,6 +38,11 @@ public sealed class BankAccountPgContext : DbContext
             .HasMany<Transaction>(e => e.Transactions)
             .WithOne(e => e.Recipient)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Экспериментально, оценить на сколько быстрее находится счёт по владельцу и наоборот
+        // modelBuilder.Entity<Account>()
+        //     .HasIndex(e => e.AccountNumber)
+        //     .IncludeProperties(e => e.Owner);
         
         base.OnModelCreating(modelBuilder);
     }

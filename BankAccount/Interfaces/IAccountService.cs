@@ -9,4 +9,6 @@ public interface IAccountService
     public AccountDto CreateAccount(AccountDto accountDto);
     public AccountDto UpdateAccount(string id, AccountDto accountDto);
     public AccountDto DeleteAccount(string id);
+
+    public bool CreateCompositeIndex(string dbName, string schemaName, List<string> properties);
 }

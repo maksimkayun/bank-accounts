@@ -3,6 +3,7 @@ using BankAccount.DataStorage;
 using BankAccount.DataStorage.PostgresModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankAccount.Services;
 
@@ -53,6 +54,24 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         var account = _context.Accounts.First(e => e.Id.ToString() == id);
         _context.Accounts.Remove(account);
         return _mapper.Map<AccountDto>(account);
+    }
+
+    public bool CreateCompositeIndex(string dbName, string schemaName, List<string> properties)
+    {
+        try
+        {
+            var key = $"{schemaName}_{string.Join("_", properties)}_index";
+            var names = properties.ToList().ConvertAll(e => $"(\"{e}\")");
+            var sqlEndQuery = string.Join($" INCLUDE ", names);
+            FormattableString sqlQuery = $"CREATE INDEX \"{key}\" ON {schemaName} {sqlEndQuery}";
+            _context.Database.ExecuteSqlInterpolated(sqlQuery);
+            return true;
+        }
+        catch (Exception e)
+        {
+        }
+        
+        return false;
     }
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>

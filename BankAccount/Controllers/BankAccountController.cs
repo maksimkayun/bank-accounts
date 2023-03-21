@@ -57,4 +57,11 @@ public class BankAccountController : Controller
         var account = _service.DeleteAccount(id);
         return Ok(account);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateIndex(List<string> properties)
+    {
+        _service.CreateCompositeIndex("banskaccounts", "accounts", properties);
+        return Ok();
+    }
 }
