@@ -73,6 +73,28 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         
         return false;
     }
+    
+    public void SeedCollectionAccounts()
+    {
+        var entities = new List<Account>();
+        var closingDate = new List<DateTime?>()
+        {
+            DateTime.Now.ToUniversalTime(), DateTime.Now.AddYears(2).ToUniversalTime(), null
+        };
+        for (int i = 1; i <= 100000; i++)
+        {
+            var acc = new Account
+            {
+                AccountNumber = (100000 + i).ToString(),
+                Balance = new Random().Next(0, 1000000),
+                OpeningDate = DateTime.Now.AddYears(new Random().Next(-10, 0)).ToUniversalTime(),
+                ClosingDate = closingDate[i % 3]
+            };
+            entities.Add(acc);    
+        }
+        _context.Accounts.AddRange(entities);
+        _context.SaveChanges();
+    }
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
         _context.Clients.Skip(skip).Take(take)

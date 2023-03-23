@@ -27,5 +27,5 @@ public class Client
     public string PhoneNumber { get; set; }
     
     [Column("accounts")]
-    public List<Account> Accounts { get; set; }
+    public List<Account>? Accounts { get; set; }
 }

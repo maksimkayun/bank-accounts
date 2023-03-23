@@ -64,4 +64,11 @@ public class BankAccountController : Controller
         _service.CreateCompositeIndex("banskaccounts", "accounts", properties);
         return Ok();
     }
+
+    [HttpPost]
+    public async Task<IActionResult> FillDb()
+    {
+        _service.SeedCollectionAccounts();
+        return Ok();
+    }
 }

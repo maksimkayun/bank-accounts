@@ -1,4 +1,5 @@
 ﻿-- docker run --name test-pg -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
+-- dotnet-ef migrations add init --context BankAccount.DataStorage.BankAccountPgContext --output-dir DataStorage/Migrations
 
 CREATE DATABASE bankaccounts
     WITH

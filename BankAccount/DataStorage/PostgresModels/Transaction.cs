@@ -21,8 +21,8 @@ public class Transaction
     public int Amount { get; set; }
 
     [Column("sender")]
-    public Account Sender { get; set; }
+    public Account? Sender { get; set; }
 
     [Column("recipient")]
-    public Account Recipient { get; set; }
+    public Account? Recipient { get; set; }
 }

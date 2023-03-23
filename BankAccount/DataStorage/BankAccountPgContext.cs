@@ -30,12 +30,12 @@ public sealed class BankAccountPgContext : DbContext
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Account>()
-            .HasMany<Transaction>(e => e.Transactions)
+            .HasMany<Transaction>(e => e.OutgoingTransactions)
             .WithOne(e => e.Sender)
             .OnDelete(DeleteBehavior.NoAction);
-        
+
         modelBuilder.Entity<Account>()
-            .HasMany<Transaction>(e => e.Transactions)
+            .HasMany<Transaction>(e => e.IcomingTransactions)
             .WithOne(e => e.Recipient)
             .OnDelete(DeleteBehavior.NoAction);
 

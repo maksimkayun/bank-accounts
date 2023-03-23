@@ -57,6 +57,11 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         throw new NotImplementedException();
     }
 
+    public void SeedCollectionAccounts()
+    {
+        throw new NotImplementedException();
+    }
+
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
         _context.Clients.FindSync(_ => true, new FindOptions<Client>
             {

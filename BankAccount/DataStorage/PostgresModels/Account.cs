@@ -21,11 +21,14 @@ public class Account
 
     [Column("closing_date")]
     [DataType(DataType.Date)]
-    public DateTime ClosingDate { get; set; }
+    public DateTime? ClosingDate { get; set; }
 
     [Column("owner")]
-    public Client Owner { get; set; }
+    public Client? Owner { get; set; }
     
-    [Column("transactions")]
-    public List<Transaction> Transactions { get; set; }
+    [Column("outgoing_transactions")]
+    public List<Transaction>? OutgoingTransactions { get; set; }
+    
+    [Column("incoming_transactions")]
+    public List<Transaction>? IcomingTransactions { get; set; }
 }
