@@ -8,7 +8,7 @@ public class Client
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
-    
+
     [BsonElement("name")]
     [BsonRepresentation(BsonType.String)]
     public string Name { get; set; }
@@ -28,7 +28,4 @@ public class Client
     [BsonElement("phone_number")]
     [BsonRepresentation(BsonType.String)]
     public string PhoneNumber { get; set; }
-    
-    [BsonElement("accounts")]
-    public List<Account> Accounts { get; set; }
 }

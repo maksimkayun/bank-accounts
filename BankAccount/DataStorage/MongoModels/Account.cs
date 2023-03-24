@@ -27,7 +27,4 @@ public class Account
     
     [BsonElement("owner")]
     public string? Owner { get; set; }
-    
-    [BsonElement("transactions")]
-    public List<string>? Transactions { get; set; }
 }

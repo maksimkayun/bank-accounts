@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Dynamic;
+using AutoMapper;
 using BankAccount.DataStorage;
 using BankAccount.DataStorage.MongoModels;
 using BankAccount.DTO;
@@ -58,23 +59,6 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         throw new NotSupportedException("The method CreateCompositeIndex is not supported for MongoDB");
     }
 
-    public void SeedCollectionAccounts()
-    {
-        List<Account> accounts = new List<Account>();
-        for (int i = 1; i <= 100000; i++)
-        {
-            var account = new Account
-            {
-                AccountNumber = 0,
-                Balance = 0,
-                OpeningDate = default,
-                ClosingDate = default,
-                Owner = null,
-                Transactions = null
-            };
-        }
-    }
-
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
         _context.Clients.FindSync(_ => true, new FindOptions<Client>
             {
@@ -116,7 +100,10 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
 
     public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
     {
-        throw new NotImplementedException();
+        var intermediate = _context.Accounts.Aggregate().Match(e => e.Owner == request.ClientId)
+            .Lookup("transactions", "_id", "sender_account_id", @as: "transactionsInfo").ToList()
+            .Select(e => (dynamic) e);
+        return new List<TransactionDto>();
     }
 
     public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>

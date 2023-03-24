@@ -18,6 +18,7 @@ public static class StartupExtentions
             services.AddScoped<IClientService, BankAccountMongoService>();
             services.AddScoped<ITransactionsService, BankAccountMongoService>();
             services.AddScoped<IAccountService, BankAccountMongoService>();
+            services.AddScoped<ITechnicalSupport, TechnicalMongoSupportService>();
         } 
         else if (config.GetValue<string>("DBType") == "Postgres")
         {
