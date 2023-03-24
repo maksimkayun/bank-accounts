@@ -30,11 +30,13 @@ public static class StartupExtentions
             services.AddScoped<IClientService, BankAccountPostgresService>();
             services.AddScoped<ITransactionsService, BankAccountPostgresService>();
             services.AddScoped<IAccountService, BankAccountPostgresService>();
+            services.AddScoped<ITechnicalSupport, TechnicalPostgresSupportService>();
         }
         else
         {
             throw new Exception("The configuration file is incorrectly configured");
         }
+
 
         return services;
     }

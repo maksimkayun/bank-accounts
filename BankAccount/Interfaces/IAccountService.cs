@@ -11,5 +11,4 @@ public interface IAccountService
     public AccountDto DeleteAccount(string id);
 
     public bool CreateCompositeIndex(string dbName, string schemaName, List<string> properties);
-    public void SeedCollectionAccounts();
 }
