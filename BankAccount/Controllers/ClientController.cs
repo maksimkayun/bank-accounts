@@ -36,4 +36,11 @@ public class ClientController : Controller
         var result = _service.GetClients(take: request.Take, skip: request.Skip);
         return Ok(result);
     }
+
+    [HttpPost("{id}")]
+    public async Task<IActionResult> GetClientById(string id)
+    {
+        var result = _service.GetClientById(id);
+        return Ok(result);
+    }
 }

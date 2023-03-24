@@ -2,6 +2,7 @@
 
 db.clients.insertMany(
     Array.from({ length: 100000 }).map((_, index) => ({
+            _id: index,
         name: ["Ivan", "Fedor", "Anatoly", "Maksim", "Nickolay", "Sergey", "Yuri", "Kirill", "Alexander", "Dmitry",][index % 10],
         surname: ["Zimin", "Gref", "Kondrashov", "Alekseev", "Borisov", "Lazarev", "Sokolov", "Borodin", "Morozov", "Medvedev",][index % 10],
         birthday_date: [ISODate("1980-12-19T06:01:17.171Z"), ISODate("2000-12-19T06:01:17.171Z"),ISODate("1988-05-02T06:01:17.171Z"), ISODate("2002-01-10T06:01:17.171Z"),ISODate("1976-12-22T06:01:17.171Z"),ISODate("1980-01-25T06:01:17.171Z"),ISODate("1973-08-25T06:01:17.171Z"),ISODate("2001-08-30T06:01:17.171Z"),ISODate("1969-05-08T06:01:17.171Z"),ISODate("1983-09-22T06:01:17.171Z"),][index % 10],
@@ -16,7 +17,7 @@ db.accounts.insertMany(
         balance: [253, 6236356, 85311, 6134636, 8223114,243671,2462461,64316161,24561616, 81981851][index % 10],
         opening_date: [ISODate("2011-04-08T06:01:17.171Z"), ISODate("2018-11-25T06:01:17.171Z"), ISODate("2010-12-19T06:01:17.171Z"), ISODate("2012-12-19T06:01:17.171Z"),ISODate("2018-12-19T06:01:17.171Z"),ISODate("2011-06-15T06:01:17.171Z"),ISODate("2005-12-24T06:01:17.171Z"),ISODate("2004-01-21T06:01:17.171Z"),ISODate("2016-09-20T06:01:17.171Z"),ISODate("2008-03-30T06:01:17.171Z"),][index % 10],
         closing_date: [ISODate("2021-04-08T06:01:17.171Z"), ISODate("2023-11-25T06:01:17.171Z"), null,][index % 3],
-        owner: null,
+        owner: index,
         transactions: []
     }))
 );

@@ -116,14 +116,13 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
 
     public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
     {
-        
-        var sentTransactions = _context.Accounts.Aggregate()
-            .Match(e => e.Owner == request.ClientId)
-            .Lookup("transactions", "transactions", "sender_account_id", @as: "transactionsInfo")
-            .As<TransactionsInfoModel>()
-            .ToList();
+        var transactions = _context.Accounts.FindSync(e => e.Owner == request.ClientId).ToEnumerable()
+            .SelectMany(e => e.TransactionIds);
 
-        return new List<TransactionDto>();
+        var result = _context.Transactions.FindSync(e => transactions.Contains(e.Id))
+            .ToEnumerable().Select(e => _mapper.Map<TransactionDto>(e)).ToList();
+
+        return result;
     }
 
     public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>

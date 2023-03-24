@@ -19,3 +19,11 @@ public class TransactionDtoPostgresProfile : Profile
             .ForMember(e => e.Recipient, opt => opt.MapFrom(m => new Account() {Id = int.Parse(m.RecipientAccountId)}));
     }
 }
+
+public class TransactionDtoMongoProfile : Profile
+{
+    public TransactionDtoMongoProfile()
+    {
+        CreateMap<DataStorage.MongoModels.Transaction, TransactionDto>();
+    }
+}

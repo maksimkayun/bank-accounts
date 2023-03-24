@@ -2,7 +2,7 @@
 
 namespace BankAccount.DataStorage.MongoModels;
 
-public class TransactionsInfoModel : Account
+public class TransactionsInfoModel : Transaction
 {
     [BsonElement("transactionsInfo")]
     public List<Transaction> TransactionsInfo { get; set; }
