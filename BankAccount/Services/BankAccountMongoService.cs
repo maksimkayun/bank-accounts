@@ -5,12 +5,14 @@ using BankAccount.DataStorage.MongoModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
 using BankAccount.Requests;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BankAccount.Services;
 
 public class BankAccountMongoService : IAccountService, IClientService, ITransactionsService
 {
+    private readonly BsonDocument _document;
     private readonly BankAccountMongoContext _context;
     private readonly IMapper _mapper;
 
@@ -59,14 +61,28 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         throw new NotSupportedException("The method CreateCompositeIndex is not supported for MongoDB");
     }
 
-    public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
-        _context.Clients.FindSync(_ => true, new FindOptions<Client>
+    public List<ClientDto> GetClients(int skip = 0, int take = 10)
+    {
+        var clients = _context.Clients.FindSync(_ => true, new FindOptions<Client>
             {
                 Limit = take,
                 Skip = skip
             }).ToEnumerable()
             .Select(e => _mapper.Map<ClientDto>(e))
             .ToList();
+        for (int i = 0; i < clients.Count; i++)
+        {
+            var ownerId = clients[i].Id;
+            clients[i].AccountIds = _context.Accounts
+                .FindSync(e => e.Owner == ownerId)
+                .ToEnumerable()
+                .Select(e => e.Id)
+                .ToList();
+        }
+
+        return clients;
+    }
+
 
     public ClientDto GetClientById(string id) =>
         _mapper.Map<ClientDto>(_context.Clients.FindSync(e => e.Id == id).FirstOrDefault());
@@ -100,9 +116,13 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
 
     public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
     {
-        var intermediate = _context.Accounts.Aggregate().Match(e => e.Owner == request.ClientId)
-            .Lookup("transactions", "_id", "sender_account_id", @as: "transactionsInfo").ToList()
-            .Select(e => (dynamic) e);
+        
+        var sentTransactions = _context.Accounts.Aggregate()
+            .Match(e => e.Owner == request.ClientId)
+            .Lookup("transactions", "transactions", "sender_account_id", @as: "transactionsInfo")
+            .As<TransactionsInfoModel>()
+            .ToList();
+
         return new List<TransactionDto>();
     }
 

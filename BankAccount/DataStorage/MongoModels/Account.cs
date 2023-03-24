@@ -27,4 +27,7 @@ public class Account
     
     [BsonElement("owner")]
     public string? Owner { get; set; }
+    
+    [BsonElement("transaction_ids")]
+    public List<string> TransactionIds { get; set; }
 }

@@ -2,6 +2,7 @@
 using BankAccount.DataStorage.MongoModels;
 using BankAccount.Interfaces;
 using BankAccount.Requests;
+using MongoDB.Driver;
 
 namespace BankAccount.Services;
 
@@ -36,13 +37,35 @@ public class TechnicalMongoSupportService : ITechnicalSupport
             };
             entities.Add(acc);
         }
-
+        
         _context.Accounts.InsertMany(entities);
         
         var transactions = GetTransactions(entities);
         _context.Transactions.InsertMany(transactions);
+
+        SyncCollections(new List<Transaction>());
     }
-    
+
+    private void SyncCollections(List<Transaction> transactions)
+    {
+        //transactions = _context.Transactions.FindSync(_ => true).ToList();
+        var accs = _context.Accounts.FindSync(_ => true).ToList();
+
+        for (int j = 0; j < accs.Count; j++)
+        {
+            var transactionsIds = transactions.Where(e =>
+                e.SenderAccountId == accs[j].Id || e.RecipientAccountId == accs[j].Id).Select(e => e.Id);
+            accs[j].TransactionIds = new List<string>();
+            if (transactionsIds != default)
+            {
+                accs[j].TransactionIds.AddRange(transactionsIds);
+            }
+        }
+
+        _context.Accounts.DeleteMany(_ => true);
+        _context.Accounts.InsertMany(accs);
+    }
+
     private List<Client> GetClients()
     {
         var clients = new List<Client>();
