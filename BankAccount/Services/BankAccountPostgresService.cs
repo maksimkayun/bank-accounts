@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal;
 using BankAccount.DataStorage;
 using BankAccount.DataStorage.PostgresModels;
 using BankAccount.DTO;
@@ -77,7 +78,6 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         return false;
     }
 
-    
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
         _context.Clients.Skip(skip).Take(take)
@@ -150,9 +150,23 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
 
     public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
     {
-        var accounts = _context.Accounts.Where(e => e.Owner.Id == int.Parse(request.ClientId)).ToList();
-        var result = _context.Transactions.Where(e=> accounts.Contains(e.Sender) || accounts.Contains(e.Recipient))
-            .Skip(request.Skip).Take(request.Take).Select(e => _mapper.Map<TransactionDto>(e)).ToList();
+        var accounts = _context.Accounts.Include(e => e.Owner)
+            .Where(e => e.Owner.Id == int.Parse(request.ClientId))
+            .Include(e => e.IcomingTransactions)
+            .Include(e => e.OutgoingTransactions);
+        
+        var incoming_transactions = accounts
+            .SelectMany(e => e.IcomingTransactions)
+            .Include(e=>e.Sender)
+            .Include(e=>e.Recipient)
+            .Select(e => _mapper.Map<TransactionDto>(e)).ToList();
+        var outgoing_transactions = accounts
+            .SelectMany(e => e.OutgoingTransactions)
+            .Include(e=>e.Sender)
+            .Include(e => e.Recipient)
+            .Select(e => _mapper.Map<TransactionDto>(e)).ToList();
+
+        var result = incoming_transactions.Concat(outgoing_transactions).ToList();
         return result;
     }
 
