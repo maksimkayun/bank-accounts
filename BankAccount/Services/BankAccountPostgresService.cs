@@ -3,7 +3,9 @@ using BankAccount.DataStorage;
 using BankAccount.DataStorage.PostgresModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
+using BankAccount.Requests;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver.Linq;
 
 namespace BankAccount.Services;
 
@@ -20,6 +22,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
 
     public List<AccountDto> GetAccounts(int skip = 0, int take = 10) =>
         _context.Accounts.Skip(skip).Take(take)
+            .Include(e => e.Owner)
             .AsEnumerable()
             .Select(e => _mapper.Map<AccountDto>(e))
             .ToList();
@@ -70,10 +73,10 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         catch (Exception e)
         {
         }
-        
+
         return false;
     }
-    
+
     public void SeedCollectionAccounts()
     {
         var entities = new List<Account>();
@@ -81,6 +84,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         {
             DateTime.Now.ToUniversalTime(), DateTime.Now.AddYears(2).ToUniversalTime(), null
         };
+        var clients = GetClients();
         for (int i = 1; i <= 100000; i++)
         {
             var acc = new Account
@@ -88,11 +92,17 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
                 AccountNumber = (100000 + i).ToString(),
                 Balance = new Random().Next(0, 1000000),
                 OpeningDate = DateTime.Now.AddYears(new Random().Next(-10, 0)).ToUniversalTime(),
-                ClosingDate = closingDate[i % 3]
+                ClosingDate = closingDate[(i - 1) % 3],
+                Owner = clients[i - 1]
             };
-            entities.Add(acc);    
+            entities.Add(acc);
         }
+
         _context.Accounts.AddRange(entities);
+        _context.SaveChangesAsync().GetAwaiter().GetResult();
+
+        var transactions = GetTransactions(entities);
+        _context.Transactions.AddRange(transactions);
         _context.SaveChanges();
     }
 
@@ -128,6 +138,132 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         _context.SaveChanges();
         return clientDto;
     }
+
+    public TransactionDto? MakeTransaction(SendMoneyRequest request)
+    {
+        TransactionDto transactionDto = null;
+        try
+        {
+            var senderAcc = _context.Accounts.First(e => e.AccountNumber == request.SenderAccountNumber);
+            var recipientAcc = _context.Accounts.First(e => e.AccountNumber == request.RecipientAccountNumber);
+
+            if (senderAcc.Balance - request.Amount >= 0 && senderAcc.Id != recipientAcc.Id)
+            {
+                senderAcc.Balance -= request.Amount;
+                recipientAcc.Balance += request.Amount;
+                var transaction = new Transaction
+                {
+                    Date = DateTime.Now.ToUniversalTime(),
+                    Amount = request.Amount,
+                    Sender = senderAcc,
+                    Recipient = recipientAcc
+                };
+                transaction = _context.Transactions.Add(transaction).Entity;
+                _context.Accounts.UpdateRange(new[] {senderAcc, recipientAcc});
+                _context.SaveChanges();
+                transactionDto = _mapper.Map<TransactionDto>(transaction);
+            }
+        }
+        catch (Exception e)
+        {
+            transactionDto = new TransactionDto()
+            {
+                Comment = e.Message
+            };
+        }
+
+        return transactionDto;
+    }
+
+    public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
+    {
+        var accounts = _context.Accounts.Where(e => e.Owner.Id == int.Parse(request.ClientId)).ToList();
+        var result = _context.Transactions.Where(e=> accounts.Contains(e.Sender) || accounts.Contains(e.Recipient))
+            .Skip(request.Skip).Take(request.Take).Select(e => _mapper.Map<TransactionDto>(e)).ToList();
+        return result;
+    }
+
+    private List<Client> GetClients()
+    {
+        var clients = new List<Client>();
+        var names = new List<string>()
+            {"Ivan", "Fedor", "Anatoly", "Maksim", "Nickolay", "Sergey", "Yuri", "Kirill", "Alexander", "Dmitry"};
+        var surnames = new List<string>()
+        {
+            "Zimin", "Gref", "Kondrashov", "Alekseev", "Borisov", "Lazarev", "Sokolov", "Borodin", "Morozov", "Medvedev"
+        };
+
+        var email = new List<string>()
+        {
+            "portele@gmail.com", "draper@gmail.com", "rjones@gmail.com", "mcsporran@gmail.com", "skajan@gmail.com",
+            "aibrahim@gmail.com", "zeitlin@gmail.com", "sequin@gmail.com", "peoplesr@gmail.com", "bebing@gmail.com"
+        };
+
+        for (int i = 0; i < 100000; i++)
+        {
+            var client = new Client
+            {
+                Name = names[i % 10],
+                SurName = surnames[i % 10],
+                Birthday = DateTime.Now.AddYears(new Random().Next(-70, -16)).ToUniversalTime(),
+                Email = email[i % 10],
+                PhoneNumber = (79950000001 + i).ToString()
+            };
+            clients.Add(client);
+        }
+
+        return clients;
+    }
+
+    private List<Transaction> GetTransactions(List<Account> accs)
+    {
+        var transactions = new List<Transaction>();
+        for (int i = 0; i < 100000; i++)
+        {
+            var sender = new Random().Next(100001, 200000);
+            var recipient = new Random().Next(100001, 200000);
+            while (recipient == sender)
+            {
+                recipient = new Random().Next(100001, 200000);
+            }
+
+            SendMoneyRequest request = new SendMoneyRequest
+            {
+                SenderAccountNumber = sender.ToString(),
+                RecipientAccountNumber = recipient.ToString(),
+                Amount = new Random().Next(1, 100000)
+            };
+            var senderAcc = accs.First(e => e.AccountNumber == request.SenderAccountNumber);
+            var recipientAcc = accs.First(e => e.AccountNumber == request.RecipientAccountNumber);
+
+            if (senderAcc.Id != recipientAcc.Id)
+            {
+                var transaction = new Transaction
+                {
+                    Date = DateTime.Now.ToUniversalTime(),
+                    Amount = request.Amount,
+                    Sender = senderAcc,
+                    Recipient = recipientAcc
+                };
+                transactions.Add(transaction);
+            }
+        }
+
+        return transactions;
+    }
+
+    public void MapClientsWithAccounts()
+    {
+        FormattableString sqlQuery = $"UPDATE accounts SET owner_id = owner_id + 1";
+        _context.Database.ExecuteSqlInterpolated(sqlQuery);
+        _context.Database.ExecuteSqlInterpolated(sqlQuery);
+
+        sqlQuery = $"UPDATE accounts SET owner_id = 1 WHERE account_number = 100001";
+        _context.Database.ExecuteSqlInterpolated(sqlQuery);
+        _context.SaveChanges();
+    }
+
+    private List<Account> GetAccounts(IQueryable<Account> accounts) => accounts.Take(1).ToList();
 
     public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>
         _context.Transactions.Skip(skip).Take(take)

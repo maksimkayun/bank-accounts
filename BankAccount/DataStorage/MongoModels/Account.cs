@@ -23,11 +23,11 @@ public class Account
     
     [BsonElement("closing_date")]
     [BsonRepresentation(BsonType.DateTime)]
-    public DateTime ClosingDate { get; set; }
+    public DateTime? ClosingDate { get; set; }
     
     [BsonElement("owner")]
-    public string Owner { get; set; }
+    public string? Owner { get; set; }
     
     [BsonElement("transactions")]
-    public List<string> Transactions { get; set; }
+    public List<string>? Transactions { get; set; }
 }

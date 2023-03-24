@@ -14,9 +14,6 @@ public class Transaction
     [DataType(DataType.Date)]
     public DateTime Date { get; set; }
 
-    [Column("type")]
-    public string Type { get; set; }
-
     [Column("amount")]
     public int Amount { get; set; }
 

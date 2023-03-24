@@ -1,10 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NpgsqlTypes;
 
 namespace BankAccount.DataStorage.PostgresModels;
 [Table("accounts")]
 public class Account
 {
+    public Account()
+    {
+        OutgoingTransactions = new HashSet<Transaction>();
+        IcomingTransactions = new HashSet<Transaction>();
+    }
+
     [Key]
     [Column("id")]
     public int Id { get; set; }
@@ -23,12 +30,10 @@ public class Account
     [DataType(DataType.Date)]
     public DateTime? ClosingDate { get; set; }
 
-    [Column("owner")]
+    [ForeignKey("owner_id")]
     public Client? Owner { get; set; }
     
-    [Column("outgoing_transactions")]
-    public List<Transaction>? OutgoingTransactions { get; set; }
+    public virtual  ICollection<Transaction>? OutgoingTransactions { get; set; }
     
-    [Column("incoming_transactions")]
-    public List<Transaction>? IcomingTransactions { get; set; }
+    public virtual  ICollection<Transaction>? IcomingTransactions { get; set; }
 }

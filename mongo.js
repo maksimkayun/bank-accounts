@@ -24,7 +24,6 @@ db.accounts.insertMany(
 db.transactions.insertMany(
     Array.from({ length: 100000 }).map((_, index) => ({
         date: [ISODate("2020-01-30T06:01:17.171Z"), ISODate("2020-11-24T06:01:17.171Z"), ISODate("2020-02-07T06:01:17.171Z"), ISODate("2020-08-31T06:01:17.171Z"),ISODate("2020-05-11T06:01:17.171Z"),ISODate("2020-11-27T06:01:17.171Z"), ISODate("2020-01-01T06:01:17.171Z"), ISODate("2020-02-03T06:01:17.171Z"), ISODate("2020-10-02T06:01:17.171Z"), ISODate("2020-03-28T06:01:17.171Z"), ISODate("2020-09-10T06:01:17.171Z"),][index % 10],
-        type: ["remittance", "replenishment", "withdrawal",][index % 3],
         amount: [34523623, 2444, 626262, 12356,19424, 145, 13501,123423,1023,10201427][index % 10],
         sender:
         recipient:

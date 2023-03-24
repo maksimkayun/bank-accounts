@@ -17,7 +17,7 @@ public sealed class BankAccountPgContext : DbContext
     public BankAccountPgContext(DbContextOptions options) : base(options)
     {
     }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
@@ -27,23 +27,23 @@ public sealed class BankAccountPgContext : DbContext
         modelBuilder.Entity<Account>()
             .HasOne<Client>(e => e.Owner)
             .WithMany(e => e.Accounts)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Account>()
             .HasMany<Transaction>(e => e.OutgoingTransactions)
             .WithOne(e => e.Sender)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Account>()
             .HasMany<Transaction>(e => e.IcomingTransactions)
             .WithOne(e => e.Recipient)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Экспериментально, оценить на сколько быстрее находится счёт по владельцу и наоборот
         // modelBuilder.Entity<Account>()
         //     .HasIndex(e => e.AccountNumber)
         //     .IncludeProperties(e => e.Owner);
-        
+
         base.OnModelCreating(modelBuilder);
     }
 }

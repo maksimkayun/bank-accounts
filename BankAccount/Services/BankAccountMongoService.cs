@@ -3,6 +3,7 @@ using BankAccount.DataStorage;
 using BankAccount.DataStorage.MongoModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
+using BankAccount.Requests;
 using MongoDB.Driver;
 
 namespace BankAccount.Services;
@@ -54,12 +55,24 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
 
     public bool CreateCompositeIndex(string dbName, string schemaName, List<string> properties)
     {
-        throw new NotImplementedException();
+        throw new NotSupportedException("The method CreateCompositeIndex is not supported for MongoDB");
     }
 
     public void SeedCollectionAccounts()
     {
-        throw new NotImplementedException();
+        List<Account> accounts = new List<Account>();
+        for (int i = 1; i <= 100000; i++)
+        {
+            var account = new Account
+            {
+                AccountNumber = 0,
+                Balance = 0,
+                OpeningDate = default,
+                ClosingDate = default,
+                Owner = null,
+                Transactions = null
+            };
+        }
     }
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
@@ -94,6 +107,16 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
     {
         var client = _context.Clients.FindOneAndDelete(e => e.Id == id);
         return _mapper.Map<ClientDto>(client);
+    }
+
+    public TransactionDto MakeTransaction(SendMoneyRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
+    {
+        throw new NotImplementedException();
     }
 
     public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>

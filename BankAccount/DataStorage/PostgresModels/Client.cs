@@ -6,6 +6,11 @@ namespace BankAccount.DataStorage.PostgresModels;
 [Table("clients")]
 public class Client
 {
+    public Client()
+    {
+        Accounts = new HashSet<Account>();
+    }
+
     [Key]
     [Column("id")]
     public int Id { get; set; }
@@ -25,7 +30,5 @@ public class Client
 
     [Column("phone_number")]
     public string PhoneNumber { get; set; }
-    
-    [Column("accounts")]
-    public List<Account>? Accounts { get; set; }
+    public virtual ICollection<Account>? Accounts { get; set; }
 }
