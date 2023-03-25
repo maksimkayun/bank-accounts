@@ -1,4 +1,3 @@
-using AutoMapper;
 using BankAccount;
 
 var builder = WebApplication.CreateBuilder(args);

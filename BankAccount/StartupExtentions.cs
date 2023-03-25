@@ -2,6 +2,9 @@
 using BankAccount.Interfaces;
 using BankAccount.Services;
 using BankAccount.Settings;
+using HibernatingRhinos.Profiler.Appender.CosmosDB;
+using HibernatingRhinos.Profiler.Appender.EntityFramework;
+using HibernatingRhinos.Profiler.Appender.StackTraces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankAccount;
@@ -32,6 +35,8 @@ public static class StartupExtentions
             services.AddScoped<ITransactionsService, BankAccountPostgresService>();
             services.AddScoped<IAccountService, BankAccountPostgresService>();
             services.AddScoped<ITechnicalSupport, TechnicalPostgresSupportService>();
+            EntityFrameworkProfiler.InitializeOfflineProfiling("log");
+            EntityFrameworkProfiler.Initialize();
         }
         else
         {
