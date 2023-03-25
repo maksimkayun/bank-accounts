@@ -114,15 +114,27 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         throw new NotImplementedException();
     }
 
-    public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
+    public List<TransactionsInfoDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
     {
-        var transactions = _context.Accounts.FindSync(e => e.Owner == request.ClientId).ToEnumerable()
-            .SelectMany(e => e.TransactionIds);
-
-        var result = _context.Transactions.FindSync(e => transactions.Contains(e.Id))
-            .ToEnumerable().Select(e => _mapper.Map<TransactionDto>(e)).ToList();
-
-        return result;
+        var transactionsInfo = _context.Accounts.Aggregate()
+            .Match(e => e.Owner == request.ClientId)
+            .Lookup("transactions", "account_number", "sender_account_number", @as: "outgoing_transactions_info")
+            .Lookup("transactions", "account_number", "recipient_account_number", @as: "incoming_transactions_info")
+            .As<TransactionsInfoModel>()
+            .ToList()
+            .Select(e => new TransactionsInfoDto
+            {
+                AccountNumber = e.AccountNumber,
+                OutgoingTransactionsInfo = e.OutgoingTransactionsInfo.ConvertAll(t=>_mapper.Map<TransactionDto>(t)),
+                IncomingTransactionsInfo = e.IncomingTransactionsInfo.ConvertAll(t=>_mapper.Map<TransactionDto>(t))
+            }).ToList();
+        
+        // var incoming = _context.Accounts.Aggregate()
+        //     .Match(e => e.Owner == request.ClientId)
+        //     .Lookup("transactions", "account_number", "recipient_account_number", @as: "incoming_transactions_info")
+        //     .As<TransactionsInfoModel>()
+        //     .ToList();
+        return transactionsInfo;
     }
 
     public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>

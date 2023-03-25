@@ -28,6 +28,6 @@ public class Account
     [BsonElement("owner")]
     public string? Owner { get; set; }
     
-    [BsonElement("transaction_ids")]
-    public List<string> TransactionIds { get; set; }
+    [BsonElement("transaction_numbers")]
+    public List<int> TransactionNumbers { get; set; }
 }

@@ -23,47 +23,28 @@ public class TechnicalMongoSupportService : ITechnicalSupport
             DateTime.Now.ToUniversalTime(), DateTime.Now.AddYears(2).ToUniversalTime(), null
         };
         var clients = GetClients();
+        var transactions = GetTransactions();
         
         _context.Clients.InsertMany(clients);
         for (int i = 1; i <= 100000; i++)
         {
+            var transaction = transactions
+                .Where(e => e.RecipientAccountNumber == 100000 + i || e.SenderAccountNumber == 100000 + i)
+                .Select(e => e.NumberTransaction).ToList();
             var acc = new Account
             {
                 AccountNumber = 100000 + i,
                 Balance = new Random().Next(0, 1000000),
                 OpeningDate = DateTime.Now.AddYears(new Random().Next(-10, 0)).ToUniversalTime(),
                 ClosingDate = closingDate[(i - 1) % 3],
-                Owner = clients[i - 1].Id
+                Owner = clients[i - 1].Id,
+                TransactionNumbers = new List<int>(transaction)
             };
             entities.Add(acc);
         }
         
-        _context.Accounts.InsertMany(entities);
         
-        var transactions = GetTransactions(entities);
-        _context.Transactions.InsertMany(transactions);
-
-        SyncCollections(new List<Transaction>());
-    }
-
-    private void SyncCollections(List<Transaction> transactions)
-    {
-        //transactions = _context.Transactions.FindSync(_ => true).ToList();
-        var accs = _context.Accounts.FindSync(_ => true).ToList();
-
-        for (int j = 0; j < accs.Count; j++)
-        {
-            var transactionsIds = transactions.Where(e =>
-                e.SenderAccountId == accs[j].Id || e.RecipientAccountId == accs[j].Id).Select(e => e.Id);
-            accs[j].TransactionIds = new List<string>();
-            if (transactionsIds != default)
-            {
-                accs[j].TransactionIds.AddRange(transactionsIds);
-            }
-        }
-
-        _context.Accounts.DeleteMany(_ => true);
-        _context.Accounts.InsertMany(accs);
+        _context.Accounts.InsertMany(entities);
     }
 
     private List<Client> GetClients()
@@ -98,7 +79,7 @@ public class TechnicalMongoSupportService : ITechnicalSupport
         return clients;
     }
 
-    private List<Transaction> GetTransactions(List<Account> accs)
+    private List<Transaction> GetTransactions()
     {
         var transactions = new List<Transaction>();
         for (int i = 0; i < 100000; i++)
@@ -110,28 +91,21 @@ public class TechnicalMongoSupportService : ITechnicalSupport
                 recipient = new Random().Next(100001, 200000);
             }
 
-            SendMoneyRequest request = new SendMoneyRequest
-            {
-                SenderAccountNumber = sender.ToString(),
-                RecipientAccountNumber = recipient.ToString(),
-                Amount = new Random().Next(1, 100000)
-            };
-            var senderAcc = accs.First(e => e.AccountNumber.ToString() == request.SenderAccountNumber);
-            var recipientAcc = accs.First(e => e.AccountNumber.ToString() == request.RecipientAccountNumber);
-
-            if (senderAcc.Id != recipientAcc.Id)
+            if (sender != recipient)
             {
                 var transaction = new Transaction
                 {
+                    NumberTransaction = 100001 + i,
                     Date = DateTime.Now.ToUniversalTime(),
-                    Amount = request.Amount,
-                    SenderAccountId = senderAcc.Id,
-                    RecipientAccountId = recipientAcc.Id
+                    Amount = new Random().Next(1, 100000),
+                    SenderAccountNumber = sender,
+                    RecipientAccountNumber = recipient
                 };
                 transactions.Add(transaction);
             }
         }
 
+        _context.Transactions.InsertMany(transactions);
         return transactions;
     }
 }

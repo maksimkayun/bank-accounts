@@ -8,5 +8,5 @@ public class AccountDto
     public DateTime OpeningDate { get; set; }
     public DateTime ClosingDate { get; set; }
     public string OwnerId { get; set; }
-    public List<string>? TransactionIds { get; set; }
+    public List<int>? TransactionNumbers { get; set; }
 }

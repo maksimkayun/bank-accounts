@@ -24,6 +24,8 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
     public List<AccountDto> GetAccounts(int skip = 0, int take = 10) =>
         _context.Accounts.Skip(skip).Take(take)
             .Include(e => e.Owner)
+            .Include(e=>e.IcomingTransactions)
+            .Include(e=>e.OutgoingTransactions)
             .AsEnumerable()
             .Select(e => _mapper.Map<AccountDto>(e))
             .ToList();
@@ -81,6 +83,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
         _context.Clients.Skip(skip).Take(take)
+            .Include(e=>e.Accounts)
             .AsEnumerable()
             .Select(e => _mapper.Map<ClientDto>(e))
             .ToList();
@@ -148,25 +151,27 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         return transactionDto;
     }
 
-    public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
+    public List<TransactionsInfoDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
     {
         var accounts = _context.Accounts.Include(e => e.Owner)
             .Where(e => e.Owner.Id == int.Parse(request.ClientId))
             .Include(e => e.IcomingTransactions)
-            .Include(e => e.OutgoingTransactions);
-        
-        var incoming_transactions = accounts
-            .SelectMany(e => e.IcomingTransactions)
-            .Include(e=>e.Sender)
-            .Include(e=>e.Recipient)
-            .Select(e => _mapper.Map<TransactionDto>(e)).ToList();
-        var outgoing_transactions = accounts
-            .SelectMany(e => e.OutgoingTransactions)
-            .Include(e=>e.Sender)
-            .Include(e => e.Recipient)
-            .Select(e => _mapper.Map<TransactionDto>(e)).ToList();
+            .ThenInclude(e => e.Sender)
+            .Include(e => e.OutgoingTransactions)
+            .ThenInclude(e => e.Recipient);
 
-        var result = incoming_transactions.Concat(outgoing_transactions).ToList();
+        List<TransactionsInfoDto> result = new List<TransactionsInfoDto>();
+        foreach (var acc in accounts)
+        {
+            var info = new TransactionsInfoDto
+            {
+                AccountNumber = Convert.ToInt32(acc.AccountNumber),
+                OutgoingTransactionsInfo =
+                    acc.OutgoingTransactions.Select(e => _mapper.Map<TransactionDto>(e)).ToList(),
+                IncomingTransactionsInfo = acc.IcomingTransactions.Select(e => _mapper.Map<TransactionDto>(e)).ToList()
+            };
+            result.Add(info);
+        }
         return result;
     }
 

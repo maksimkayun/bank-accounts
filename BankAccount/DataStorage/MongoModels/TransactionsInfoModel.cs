@@ -2,8 +2,13 @@
 
 namespace BankAccount.DataStorage.MongoModels;
 
-public class TransactionsInfoModel : Transaction
+[BsonIgnoreExtraElements]
+public class TransactionsInfoModel : Account
 {
-    [BsonElement("transactionsInfo")]
-    public List<Transaction> TransactionsInfo { get; set; }
+    
+    [BsonElement("outgoing_transactions_info")]
+    public List<Transaction> OutgoingTransactionsInfo { get; set; }
+    
+    [BsonElement("incoming_transactions_info")]
+    public List<Transaction> IncomingTransactionsInfo { get; set; }
 }

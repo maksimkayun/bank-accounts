@@ -14,5 +14,5 @@ public interface IClientService
 
     public TransactionDto MakeTransaction(SendMoneyRequest request);
 
-    public List<TransactionDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request);
+    public List<TransactionsInfoDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request);
 }
