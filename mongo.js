@@ -1,4 +1,9 @@
 ﻿docker run --name test-mongo -dit -p 27017:27017 mongo:latest
+db.setProfilingLevel(2)
+db.setLogLevel(2)
+db.system.profile.find().limit(10).sort( { ts : -1 } ).pretty()
+db.accounts.createIndex({ "owner": 1, "account_number": 1 }, { "name": "owner_account_index" })
+
 
 db.clients.insertMany(
     Array.from({ length: 100000 }).map((_, index) => ({
@@ -31,3 +36,4 @@ db.transactions.insertMany(
         index: index,
 }))
 );
+
