@@ -148,10 +148,12 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
                 };
                 _context.Transactions.InsertOne(transaction);
 
+                _context.Accounts.UpdateMany(e => e.AccountNumber == senderAccount.AccountNumber || e.AccountNumber == recipientAccount.AccountNumber,
+                    Builders<Account>.Update.Push(e => e.TransactionNumbers, maxTransactionNumber + 1));
                 _context.Accounts.UpdateOne(e => e.AccountNumber == senderAccount.AccountNumber,
-                    Builders<Account>.Update.AddToSet(e => e.TransactionNumbers, maxTransactionNumber + 1));
+                    Builders<Account>.Update.Inc(e=>e.Balance, -request.Amount));
                 _context.Accounts.UpdateOne(e => e.AccountNumber == recipientAccount.AccountNumber,
-                    Builders<Account>.Update.AddToSet(e => e.TransactionNumbers, maxTransactionNumber + 1));
+                    Builders<Account>.Update.Inc(e=>e.Balance, request.Amount));
 
                 result = _mapper.Map<TransactionDto>(transaction);
             }
