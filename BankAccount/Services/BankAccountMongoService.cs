@@ -84,8 +84,15 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
     }
 
 
-    public ClientDto GetClientById(string id) =>
-        _mapper.Map<ClientDto>(_context.Clients.FindSync(e => e.Id == id).FirstOrDefault());
+    public ClientDto GetClientById(string id)
+    {
+        var client = _mapper.Map<ClientDto>(_context.Clients.FindSync(e => e.Id == id).FirstOrDefault());
+        var accounts = _context.Accounts.FindSync(e => e.Owner == id).ToList().Select(e => e.Id).ToList();
+        client.AccountIds = new List<string>(accounts);
+        return client;
+    }
+    
+        
 
     public ClientDto CreateClient(ClientDto clientDto)
     {
