@@ -35,8 +35,8 @@ public static class StartupExtentions
             services.AddScoped<ITransactionsService, BankAccountPostgresService>();
             services.AddScoped<IAccountService, BankAccountPostgresService>();
             services.AddScoped<ITechnicalSupport, TechnicalPostgresSupportService>();
-            EntityFrameworkProfiler.InitializeOfflineProfiling("log");
-            EntityFrameworkProfiler.Initialize();
+            EntityFrameworkProfiler.InitializeOfflineProfiling($"log_{DateTime.Now}.EFProf");
+            //EntityFrameworkProfiler.Initialize();
         }
         else
         {
