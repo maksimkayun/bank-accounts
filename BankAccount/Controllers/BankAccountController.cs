@@ -37,26 +37,26 @@ public class BankAccountController : Controller
         return BadRequest("not found");
     }
 
-    [HttpPost]
-    public async Task<ActionResult> CreateAccount([FromBody] AccountDto accountDto)
-    {
-        _service.CreateAccount(accountDto);
-        return Ok(accountDto.Id);
-    }
-
-    [HttpPost("{id}")]
-    public async Task<ActionResult> UpdateAccount(string id, [FromBody] AccountDto accountDto)
-    {
-        var accountUpd = _service.UpdateAccount(id, accountDto);
-        return Ok(accountUpd);
-    }
-
-    [HttpPost("{id}")]
-    public async Task<ActionResult> DeleteAccount(string id)
-    {
-        var account = _service.DeleteAccount(id);
-        return Ok(account);
-    }
+    // [HttpPost]
+    // public async Task<ActionResult> CreateAccount([FromBody] AccountDto accountDto)
+    // {
+    //     _service.CreateAccount(accountDto);
+    //     return Ok(accountDto.Id);
+    // }
+    //
+    // [HttpPost("{id}")]
+    // public async Task<ActionResult> UpdateAccount(string id, [FromBody] AccountDto accountDto)
+    // {
+    //     var accountUpd = _service.UpdateAccount(id, accountDto);
+    //     return Ok(accountUpd);
+    // }
+    //
+    // [HttpPost("{id}")]
+    // public async Task<ActionResult> DeleteAccount(string id)
+    // {
+    //     var account = _service.DeleteAccount(id);
+    //     return Ok(account);
+    // }
 
     [HttpPost]
     public async Task<IActionResult> CreateIndex(List<string> properties)

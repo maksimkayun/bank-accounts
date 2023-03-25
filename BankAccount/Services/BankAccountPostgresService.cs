@@ -24,15 +24,19 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
     public List<AccountDto> GetAccounts(int skip = 0, int take = 10) =>
         _context.Accounts.Skip(skip).Take(take)
             .Include(e => e.Owner)
-            .Include(e=>e.IcomingTransactions)
-            .Include(e=>e.OutgoingTransactions)
+            .Include(e => e.IcomingTransactions)
+            .Include(e => e.OutgoingTransactions)
             .AsEnumerable()
             .Select(e => _mapper.Map<AccountDto>(e))
             .ToList();
 
     public AccountDto GetAccountById(string id)
     {
-        var account = _context.Accounts.SingleOrDefault(e => e.Id.ToString() == id);
+        var account = _context.Accounts
+            .Include(e => e.Owner)
+            .Include(e => e.IcomingTransactions)
+            .Include(e => e.OutgoingTransactions)
+            .SingleOrDefault(e => e.Id.ToString() == id);
         var accountDto = _mapper.Map<AccountDto>(account);
         return accountDto;
     }
@@ -83,13 +87,13 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
 
     public List<ClientDto> GetClients(int skip = 0, int take = 10) =>
         _context.Clients.Skip(skip).Take(take)
-            .Include(e=>e.Accounts)
+            .Include(e => e.Accounts)
             .AsEnumerable()
             .Select(e => _mapper.Map<ClientDto>(e))
             .ToList();
 
     public ClientDto GetClientById(string id) =>
-        _mapper.Map<ClientDto>(_context.Clients.First(e => e.Id == int.Parse(id)));
+        _mapper.Map<ClientDto>(_context.Clients.Include(e=>e.Accounts).First(e => e.Id == int.Parse(id)));
 
     public ClientDto CreateClient(ClientDto clientDto)
     {
@@ -172,6 +176,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
             };
             result.Add(info);
         }
+
         return result;
     }
 

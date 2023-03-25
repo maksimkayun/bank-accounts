@@ -111,7 +111,51 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
 
     public TransactionDto MakeTransaction(SendMoneyRequest request)
     {
-        throw new NotImplementedException();
+        TransactionDto result = null;
+        try
+        {
+            var recipientAccount = _context.Accounts
+                .FindSync(e => e.AccountNumber == int.Parse(request.RecipientAccountNumber))
+                .FirstOrDefault();
+            var senderAccount = _context.Accounts
+                .FindSync(e => e.AccountNumber == int.Parse(request.SenderAccountNumber))
+                .FirstOrDefault();
+
+            if (senderAccount.Balance - request.Amount >= 0 && senderAccount.Id != recipientAccount.Id)
+            {
+                var sort = Builders<Transaction>.Sort.Descending(x => x.NumberTransaction);
+
+                var maxTransactionNumber = _context.Transactions
+                    .FindSync(_ => true, new FindOptions<Transaction> {Sort = sort, Limit = 1})
+                    .FirstOrDefault().NumberTransaction;
+
+                Transaction transaction = new Transaction
+                {
+                    NumberTransaction = maxTransactionNumber + 1,
+                    Date = DateTime.Now.ToUniversalTime(),
+                    Amount = request.Amount,
+                    SenderAccountNumber = senderAccount.AccountNumber,
+                    RecipientAccountNumber = recipientAccount.AccountNumber
+                };
+                _context.Transactions.InsertOne(transaction);
+
+                _context.Accounts.UpdateOne(e => e.AccountNumber == senderAccount.AccountNumber,
+                    Builders<Account>.Update.AddToSet(e => e.TransactionNumbers, maxTransactionNumber + 1));
+                _context.Accounts.UpdateOne(e => e.AccountNumber == recipientAccount.AccountNumber,
+                    Builders<Account>.Update.AddToSet(e => e.TransactionNumbers, maxTransactionNumber + 1));
+                
+                result = _mapper.Map<TransactionDto>(transaction);
+            }
+        }
+        catch (Exception e)
+        {
+            result = new TransactionDto()
+            {
+                Comment = e.Message
+            };
+        }
+
+        return result;
     }
 
     public List<TransactionsInfoDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request)
@@ -125,15 +169,10 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
             .Select(e => new TransactionsInfoDto
             {
                 AccountNumber = e.AccountNumber,
-                OutgoingTransactionsInfo = e.OutgoingTransactionsInfo.ConvertAll(t=>_mapper.Map<TransactionDto>(t)),
-                IncomingTransactionsInfo = e.IncomingTransactionsInfo.ConvertAll(t=>_mapper.Map<TransactionDto>(t))
+                OutgoingTransactionsInfo = e.OutgoingTransactionsInfo.ConvertAll(t => _mapper.Map<TransactionDto>(t)),
+                IncomingTransactionsInfo = e.IncomingTransactionsInfo.ConvertAll(t => _mapper.Map<TransactionDto>(t))
             }).ToList();
-        
-        // var incoming = _context.Accounts.Aggregate()
-        //     .Match(e => e.Owner == request.ClientId)
-        //     .Lookup("transactions", "account_number", "recipient_account_number", @as: "incoming_transactions_info")
-        //     .As<TransactionsInfoModel>()
-        //     .ToList();
+
         return transactionsInfo;
     }
 
