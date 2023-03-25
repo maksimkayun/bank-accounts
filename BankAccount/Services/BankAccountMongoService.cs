@@ -34,6 +34,9 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
     public AccountDto GetAccountById(string id) =>
         _mapper.Map<AccountDto>(_context.Accounts.Find(e => e.Id == id).FirstOrDefault());
 
+    public AccountDto GetAccountByNumber(int accountNumber) =>
+        _mapper.Map<AccountDto>(_context.Accounts.Find(e => e.AccountNumber == accountNumber).FirstOrDefault());
+
     public AccountDto CreateAccount(AccountDto accountDto)
     {
         var account = _mapper.Map<Account>(accountDto);
@@ -91,8 +94,7 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         client.AccountIds = new List<string>(accounts);
         return client;
     }
-    
-        
+
 
     public ClientDto CreateClient(ClientDto clientDto)
     {
@@ -150,7 +152,7 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
                     Builders<Account>.Update.AddToSet(e => e.TransactionNumbers, maxTransactionNumber + 1));
                 _context.Accounts.UpdateOne(e => e.AccountNumber == recipientAccount.AccountNumber,
                     Builders<Account>.Update.AddToSet(e => e.TransactionNumbers, maxTransactionNumber + 1));
-                
+
                 result = _mapper.Map<TransactionDto>(transaction);
             }
         }

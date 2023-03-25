@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using AutoMapper.Internal;
 using BankAccount.DataStorage;
 using BankAccount.DataStorage.PostgresModels;
 using BankAccount.DTO;
 using BankAccount.Interfaces;
 using BankAccount.Requests;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver.Linq;
 
 namespace BankAccount.Services;
 
@@ -40,6 +38,9 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         var accountDto = _mapper.Map<AccountDto>(account);
         return accountDto;
     }
+
+    public AccountDto GetAccountByNumber(int accountNumber) =>
+        GetAccountById(_context.Accounts.FirstOrDefault(e => e.AccountNumber == accountNumber.ToString()).Id.ToString());
 
 
     public AccountDto CreateAccount(AccountDto accountDto)
@@ -93,7 +94,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
             .ToList();
 
     public ClientDto GetClientById(string id) =>
-        _mapper.Map<ClientDto>(_context.Clients.Include(e=>e.Accounts).First(e => e.Id == int.Parse(id)));
+        _mapper.Map<ClientDto>(_context.Clients.Include(e => e.Accounts).First(e => e.Id == int.Parse(id)));
 
     public ClientDto CreateClient(ClientDto clientDto)
     {
@@ -179,8 +180,6 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
 
         return result;
     }
-
-    private List<Account> GetAccounts(IQueryable<Account> accounts) => accounts.Take(1).ToList();
 
     public List<TransactionDto> GetTransactions(int skip = 0, int take = 10) =>
         _context.Transactions.Skip(skip).Take(take)

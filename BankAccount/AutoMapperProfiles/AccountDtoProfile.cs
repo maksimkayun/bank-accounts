@@ -23,7 +23,7 @@ public class AccountDtoPostgresProfile : Profile
     public AccountDtoPostgresProfile()
     {
         CreateMap<DataStorage.PostgresModels.Account, AccountDto>()
-            .ForMember(e => e.OwnerId, opt => opt.MapFrom(m => m.Owner))
+            .ForMember(e => e.OwnerId, opt => opt.MapFrom(m => m.Owner.Id))
             .ForMember(e=>e.TransactionNumbers, opt=>opt.MapFrom(m=>GetTransactionNumbersByAccount(m)))
             .ReverseMap()
             .ForMember(e => e.Owner, opt => opt.MapFrom(m => m.OwnerId));
