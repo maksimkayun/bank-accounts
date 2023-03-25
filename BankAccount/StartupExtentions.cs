@@ -29,13 +29,14 @@ public static class StartupExtentions
             services.AddDbContext<BankAccountPgContext>(options =>
             {
                 options.UseNpgsql(connectionString);
+                options.EnableSensitiveDataLogging();
             });
             services.AddScoped<BankAccountPgContext>();
             services.AddScoped<IClientService, BankAccountPostgresService>();
             services.AddScoped<ITransactionsService, BankAccountPostgresService>();
             services.AddScoped<IAccountService, BankAccountPostgresService>();
             services.AddScoped<ITechnicalSupport, TechnicalPostgresSupportService>();
-            EntityFrameworkProfiler.InitializeOfflineProfiling($"log_{DateTime.Now}.EFProf");
+            EntityFrameworkProfiler.InitializeOfflineProfiling($"log_{DateTime.Now.ToLocalTime().ToString().Replace(".", "_").Replace(":", "_")}.EFProf");
             //EntityFrameworkProfiler.Initialize();
         }
         else
