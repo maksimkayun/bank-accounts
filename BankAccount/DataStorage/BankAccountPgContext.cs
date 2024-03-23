@@ -44,6 +44,22 @@ public sealed class BankAccountPgContext : DbContext
         //     .HasIndex(e => e.AccountNumber)
         //     .IncludeProperties(e => e.Owner);
 
+        modelBuilder.Entity<Account>(e =>
+        {
+            e.HasKey(k => k.Id);
+            e.Property(k => k.Id).ValueGeneratedOnAdd();
+        });
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.HasKey(k => k.Id);
+            e.Property(k => k.Id).ValueGeneratedOnAdd();
+        });
+        modelBuilder.Entity<Client>(e =>
+        {
+            e.HasKey(k => k.Id);
+            e.Property(k => k.Id).ValueGeneratedOnAdd();
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }

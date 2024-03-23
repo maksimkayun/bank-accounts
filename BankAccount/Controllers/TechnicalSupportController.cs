@@ -17,7 +17,7 @@ public class TechnicalSupportController : Controller
     [HttpPost]
     public async Task<IActionResult> FillDbs()
     {
-        _service.SeedCollectionAccounts();
+        await _service.SeedCollectionAccounts();
         return Ok();
     }
     

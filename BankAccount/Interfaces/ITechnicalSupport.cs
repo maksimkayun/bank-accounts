@@ -2,5 +2,5 @@
 
 public interface ITechnicalSupport
 {
-    public void SeedCollectionAccounts();
+    public Task SeedCollectionAccounts();
 }

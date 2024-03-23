@@ -12,14 +12,14 @@ public class TechnicalPostgresSupportService : ITechnicalSupport
     {
         _context = context;
     }
-    public void SeedCollectionAccounts()
+    public async Task SeedCollectionAccounts()
     {
         var entities = new List<Account>();
         var closingDate = new List<DateTime?>()
         {
             DateTime.Now.ToUniversalTime(), DateTime.Now.AddYears(2).ToUniversalTime(), null
         };
-        var clients = GetClients();
+        var clients = await GetClients();
         for (int i = 1; i <= 100000; i++)
         {
             var acc = new Account
@@ -34,44 +34,46 @@ public class TechnicalPostgresSupportService : ITechnicalSupport
         }
 
         _context.Accounts.AddRange(entities);
-        _context.SaveChangesAsync().GetAwaiter().GetResult();
+        await _context.SaveChangesAsync();
 
         var transactions = GetTransactions(entities);
         _context.Transactions.AddRange(transactions);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
-    
-    private List<Client> GetClients()
-    {
-        var clients = new List<Client>();
-        var names = new List<string>()
-            {"Ivan", "Fedor", "Anatoly", "Maksim", "Nickolay", "Sergey", "Yuri", "Kirill", "Alexander", "Dmitry"};
-        var surnames = new List<string>()
-        {
-            "Zimin", "Gref", "Kondrashov", "Alekseev", "Borisov", "Lazarev", "Sokolov", "Borodin", "Morozov", "Medvedev"
-        };
 
-        var email = new List<string>()
+    private async Task<List<Client>> GetClients()
+        => await Task.Run(() =>
         {
-            "portele@gmail.com", "draper@gmail.com", "rjones@gmail.com", "mcsporran@gmail.com", "skajan@gmail.com",
-            "aibrahim@gmail.com", "zeitlin@gmail.com", "sequin@gmail.com", "peoplesr@gmail.com", "bebing@gmail.com"
-        };
-
-        for (int i = 0; i < 100000; i++)
-        {
-            var client = new Client
+            var clients = new List<Client>();
+            var names = new List<string>()
+                { "Ivan", "Fedor", "Anatoly", "Maksim", "Nickolay", "Sergey", "Yuri", "Kirill", "Alexander", "Dmitry" };
+            var surnames = new List<string>()
             {
-                Name = names[i % 10],
-                SurName = surnames[i % 10],
-                Birthday = DateTime.Now.AddYears(new Random().Next(-70, -16)).ToUniversalTime(),
-                Email = email[i % 10],
-                PhoneNumber = (79950000001 + i).ToString()
+                "Zimin", "Gref", "Kondrashov", "Alekseev", "Borisov", "Lazarev", "Sokolov", "Borodin", "Morozov",
+                "Medvedev"
             };
-            clients.Add(client);
-        }
 
-        return clients;
-    }
+            var email = new List<string>()
+            {
+                "portele@gmail.com", "draper@gmail.com", "rjones@gmail.com", "mcsporran@gmail.com", "skajan@gmail.com",
+                "aibrahim@gmail.com", "zeitlin@gmail.com", "sequin@gmail.com", "peoplesr@gmail.com", "bebing@gmail.com"
+            };
+
+            for (int i = 0; i < 100000; i++)
+            {
+                var client = new Client
+                {
+                    Name = names[i % 10],
+                    SurName = surnames[i % 10],
+                    Birthday = DateTime.Now.AddYears(new Random().Next(-70, -16)).ToUniversalTime(),
+                    Email = email[i % 10],
+                    PhoneNumber = (79950000001 + i).ToString()
+                };
+                clients.Add(client);
+            }
+
+            return clients;
+        });
 
     private List<Transaction> GetTransactions(List<Account> accs)
     {

@@ -15,7 +15,7 @@ public class TechnicalMongoSupportService : ITechnicalSupport
         _context = context;
     }
 
-    public void SeedCollectionAccounts()
+    public async Task SeedCollectionAccounts()
     {
         var entities = new List<Account>();
         var closingDate = new List<DateTime?>()
@@ -23,9 +23,9 @@ public class TechnicalMongoSupportService : ITechnicalSupport
             DateTime.Now.ToUniversalTime(), DateTime.Now.AddYears(2).ToUniversalTime(), null
         };
         var clients = GetClients();
-        var transactions = GetTransactions();
+        var transactions = await GetTransactions();
         
-        _context.Clients.InsertMany(clients);
+        await _context.Clients.InsertManyAsync(clients);
         for (int i = 1; i <= 100000; i++)
         {
             var transaction = transactions
@@ -44,7 +44,7 @@ public class TechnicalMongoSupportService : ITechnicalSupport
         }
         
         
-        _context.Accounts.InsertMany(entities);
+        await _context.Accounts.InsertManyAsync(entities);
     }
 
     private List<Client> GetClients()
@@ -79,7 +79,7 @@ public class TechnicalMongoSupportService : ITechnicalSupport
         return clients;
     }
 
-    private List<Transaction> GetTransactions()
+    private async Task<List<Transaction>> GetTransactions()
     {
         var transactions = new List<Transaction>();
         for (int i = 0; i < 100000; i++)
@@ -105,7 +105,7 @@ public class TechnicalMongoSupportService : ITechnicalSupport
             }
         }
 
-        _context.Transactions.InsertMany(transactions);
+        await _context.Transactions.InsertManyAsync(transactions);
         return transactions;
     }
 }
