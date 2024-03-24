@@ -155,6 +155,14 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
             await _context.SaveChangesAsync();
             transactionDto = _mapper.Map<TransactionDto>(transaction);
         }
+        else if(!(senderAcc.Balance - request.Amount >= 0))
+        {
+            BusinessException.GenerateBusinessExceptionWithThrow(403, "Недостаточно средств для списания", string.Empty);
+        }
+        else
+        {
+            BusinessException.GenerateBusinessExceptionWithThrow(403, "Лицевые счета совпадают", string.Empty);
+        }
 
         return transactionDto;
     }
