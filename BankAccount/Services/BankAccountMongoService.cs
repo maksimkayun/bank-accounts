@@ -118,25 +118,27 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
         return _mapper.Map<ClientDto>(client);
     }
 
-    public TransactionDto MakeTransaction(SendMoneyRequest request)
+    public async Task<TransactionDto?> MakeTransaction(SendMoneyRequest request)
     {
         TransactionDto result = null;
         try
         {
-            var recipientAccount = _context.Accounts
-                .FindSync(e => e.AccountNumber == int.Parse(request.RecipientAccountNumber))
-                .FirstOrDefault();
-            var senderAccount = _context.Accounts
-                .FindSync(e => e.AccountNumber == int.Parse(request.SenderAccountNumber))
-                .FirstOrDefault();
+            var recipientAccount = await _context.Accounts
+                .FindAsync(e => e.AccountNumber == int.Parse(request.RecipientAccountNumber))
+                .Result
+                .FirstOrDefaultAsync();
+            var senderAccount = await _context.Accounts
+                .FindAsync(e => e.AccountNumber == int.Parse(request.SenderAccountNumber))
+                .Result
+                .FirstOrDefaultAsync();
 
             if (senderAccount.Balance - request.Amount >= 0 && senderAccount.Id != recipientAccount.Id)
             {
                 var sort = Builders<Transaction>.Sort.Descending(x => x.NumberTransaction);
 
-                var maxTransactionNumber = _context.Transactions
-                    .FindSync(_ => true, new FindOptions<Transaction> {Sort = sort, Limit = 1})
-                    .FirstOrDefault().NumberTransaction;
+                var maxTransactionNumber = (await (await _context.Transactions
+                    .FindAsync(_ => true, new FindOptions<Transaction> {Sort = sort, Limit = 1}))
+                    .FirstOrDefaultAsync()).NumberTransaction;
 
                 Transaction transaction = new Transaction
                 {
@@ -146,13 +148,13 @@ public class BankAccountMongoService : IAccountService, IClientService, ITransac
                     SenderAccountNumber = senderAccount.AccountNumber,
                     RecipientAccountNumber = recipientAccount.AccountNumber
                 };
-                _context.Transactions.InsertOne(transaction);
+                await _context.Transactions.InsertOneAsync(transaction);
 
-                _context.Accounts.UpdateMany(e => e.AccountNumber == senderAccount.AccountNumber || e.AccountNumber == recipientAccount.AccountNumber,
+                await _context.Accounts.UpdateManyAsync(e => e.AccountNumber == senderAccount.AccountNumber || e.AccountNumber == recipientAccount.AccountNumber,
                     Builders<Account>.Update.Push(e => e.TransactionNumbers, maxTransactionNumber + 1));
-                _context.Accounts.UpdateOne(e => e.AccountNumber == senderAccount.AccountNumber,
+                await _context.Accounts.UpdateOneAsync(e => e.AccountNumber == senderAccount.AccountNumber,
                     Builders<Account>.Update.Inc(e=>e.Balance, -request.Amount));
-                _context.Accounts.UpdateOne(e => e.AccountNumber == recipientAccount.AccountNumber,
+                await _context.Accounts.UpdateOneAsync(e => e.AccountNumber == recipientAccount.AccountNumber,
                     Builders<Account>.Update.Inc(e=>e.Balance, request.Amount));
 
                 result = _mapper.Map<TransactionDto>(transaction);

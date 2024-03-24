@@ -20,7 +20,7 @@ public class ClientController : Controller
     [HttpPost]
     public async Task<IActionResult> SendMoney(SendMoneyRequest request)
     {
-        return Ok(_service.MakeTransaction(request));
+        return Ok(await _service.MakeTransaction(request));
     }
 
     [HttpPost]

@@ -120,7 +120,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
         return clientDto;
     }
 
-    public TransactionDto? MakeTransaction(SendMoneyRequest request)
+    public async Task<TransactionDto?> MakeTransaction(SendMoneyRequest request)
     {
         TransactionDto transactionDto = null;
         try
@@ -141,7 +141,7 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
                 };
                 transaction = _context.Transactions.Add(transaction).Entity;
                 _context.Accounts.UpdateRange(new[] {senderAcc, recipientAcc});
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 transactionDto = _mapper.Map<TransactionDto>(transaction);
             }
         }

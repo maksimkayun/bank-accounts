@@ -12,7 +12,7 @@ public interface IClientService
     public ClientDto UpdateClient(string id, ClientDto clientDto);
     public ClientDto DeleteClient(string id);
 
-    public TransactionDto MakeTransaction(SendMoneyRequest request);
+    public Task<TransactionDto?> MakeTransaction(SendMoneyRequest request);
 
     public List<TransactionsInfoDto> GetTransactionsByClientId(GetTransactionsByClientIdRequest request);
 }
