@@ -1,4 +1,5 @@
 ﻿using BankAccount.DTO;
+using BankAccount.Exceptions;
 using BankAccount.Interfaces;
 using BankAccount.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ public class BankAccountController : Controller
     }
 
     [HttpPost("{id}")]
+    [ProducesErrorResponseType(typeof(ErrorInfo))]
     public async Task<ActionResult> GetById(string id)
     {
         var result = _service.GetAccountById(id);

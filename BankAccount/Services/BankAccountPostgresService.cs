@@ -2,6 +2,7 @@
 using BankAccount.DataStorage;
 using BankAccount.DataStorage.PostgresModels;
 using BankAccount.DTO;
+using BankAccount.Exceptions;
 using BankAccount.Interfaces;
 using BankAccount.Requests;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,8 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
     }
 
     public AccountDto GetAccountByNumber(int accountNumber) =>
-        GetAccountById(_context.Accounts.FirstOrDefault(e => e.AccountNumber == accountNumber.ToString()).Id.ToString());
+        GetAccountById(_context.Accounts.FirstOrDefault(e => e.AccountNumber == accountNumber.ToString()).Id
+            .ToString());
 
 
     public AccountDto CreateAccount(AccountDto accountDto)
@@ -123,34 +125,35 @@ public class BankAccountPostgresService : IAccountService, IClientService, ITran
     public async Task<TransactionDto?> MakeTransaction(SendMoneyRequest request)
     {
         TransactionDto transactionDto = null;
-        try
-        {
-            var senderAcc = _context.Accounts.First(e => e.AccountNumber == request.SenderAccountNumber);
-            var recipientAcc = _context.Accounts.First(e => e.AccountNumber == request.RecipientAccountNumber);
 
-            if (senderAcc.Balance - request.Amount >= 0 && senderAcc.Id != recipientAcc.Id)
-            {
-                senderAcc.Balance -= request.Amount;
-                recipientAcc.Balance += request.Amount;
-                var transaction = new Transaction
-                {
-                    Date = DateTime.Now.ToUniversalTime(),
-                    Amount = request.Amount,
-                    Sender = senderAcc,
-                    Recipient = recipientAcc
-                };
-                transaction = _context.Transactions.Add(transaction).Entity;
-                _context.Accounts.UpdateRange(new[] {senderAcc, recipientAcc});
-                await _context.SaveChangesAsync();
-                transactionDto = _mapper.Map<TransactionDto>(transaction);
-            }
-        }
-        catch (Exception e)
+        var senderAcc =
+            await _context.Accounts.FirstOrDefaultAsync(e => e.AccountNumber == request.SenderAccountNumber);
+        var recipientAcc =
+            await _context.Accounts.FirstOrDefaultAsync(e => e.AccountNumber == request.RecipientAccountNumber);
+
+        if (senderAcc == null || recipientAcc == null)
         {
-            transactionDto = new TransactionDto()
+            BusinessException.GenerateBusinessExceptionWithThrow(400,
+                senderAcc == null && recipientAcc == null ? "Лицевые счта отправителя и получателя не найдены" :
+                senderAcc == null ? "Лицевой счёт отправителя не найден" : "Лицевой счёт получателя не найден",
+                string.Empty);
+        }
+
+        if (senderAcc.Balance - request.Amount >= 0 && senderAcc.Id != recipientAcc.Id)
+        {
+            senderAcc.Balance -= request.Amount;
+            recipientAcc.Balance += request.Amount;
+            var transaction = new Transaction
             {
-                Comment = e.Message
+                Date = DateTime.Now.ToUniversalTime(),
+                Amount = request.Amount,
+                Sender = senderAcc,
+                Recipient = recipientAcc
             };
+            transaction = _context.Transactions.Add(transaction).Entity;
+            _context.Accounts.UpdateRange([senderAcc, recipientAcc]);
+            await _context.SaveChangesAsync();
+            transactionDto = _mapper.Map<TransactionDto>(transaction);
         }
 
         return transactionDto;

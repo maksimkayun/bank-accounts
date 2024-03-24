@@ -1,14 +1,20 @@
 using AutoMapper;
 using BankAccount;
 using BankAccount.AutoMapperProfiles;
+using BankAccount.Middlewares;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddRouting(opt => opt.LowercaseUrls = true);
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson(opt => opt.SerializerSettings.Converters.Add(new StringEnumConverter()));
+builder.Services.AddEndpointsApiExplorer()
+    .AddSwaggerGen()
+    .AddSwaggerGenNewtonsoftSupport();
 
 var mapperConfig = new MapperConfiguration(mc => mc.AddProfiles(new List<Profile>
 {
@@ -17,8 +23,6 @@ var mapperConfig = new MapperConfiguration(mc => mc.AddProfiles(new List<Profile
     new TransactionDtoPostgresProfile()
 }));
 builder.Services.AddSingleton(mapperConfig.CreateMapper());
-
-builder.Services.AddRouting(opt => opt.LowercaseUrls = true);
 builder.Services.ConfigureDatabaseConnection(builder.Configuration);
 builder.Services.AddLogging(opt => opt.AddConsole());
 
@@ -29,13 +33,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
     app.UseRequestResponseLogging();
 }
 
+app.UseMiddleware<ExceptionHandleMiddleware>();
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints => endpoints.MapControllers());
 
 app.Run();
